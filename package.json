@@ -1,6 +1,6 @@
 {
   "name": "deepseek-harness",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "DeepSeek Harness (dsh) Electron 封装",
   "main": "main.js",
   "scripts": {
@@ -25,7 +25,7 @@
       "category": "public.app-category.developer-tools",
       "icon": "build/icon.icns",
       "target": [
-        "dir",
+        "dmg",
         "zip"
       ],
       "identity": "-",
