@@ -22,4 +22,7 @@ npm run dist:win     # 打包 Windows NSIS
 
 ## 下载
 
-预编译产物见 [Releases](../../releases)。
+- **macOS**（Intel + Apple Silicon 通用）：[DeepSeek.Harness-universal-mac.zip](https://github.com/Cnnnnnn/deepseek-harness-electron/releases/latest/download/DeepSeek.Harness-universal-mac.zip)
+- **Windows**：[DeepSeek.Harness-Setup-x64.exe](https://github.com/Cnnnnnn/deepseek-harness-electron/releases/latest/download/DeepSeek.Harness-Setup-x64.exe)
+
+历史版本见 [Releases](https://github.com/Cnnnnnn/deepseek-harness-electron/releases)。
