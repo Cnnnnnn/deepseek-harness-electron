@@ -17,7 +17,7 @@ jobs:
         with:
           node-version: 22
       - name: Install dependencies
-        run: npm install
+        run: npm ci
       - name: Smoke test
         run: npm test
       - name: Build macOS universal
@@ -36,7 +36,7 @@ jobs:
         with:
           node-version: 22
       - name: Install dependencies
-        run: npm install
+        run: npm ci
       - name: Build Windows
         run: npm run dist:win
       - name: Upload Windows artifact
