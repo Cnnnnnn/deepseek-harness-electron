@@ -1,0 +1,54 @@
+{
+  "name": "deepseek-harness",
+  "version": "1.0.1",
+  "description": "DeepSeek Harness (dsh) Electron 封装",
+  "main": "main.js",
+  "scripts": {
+    "start": "node node_modules/electron/cli.js .",
+    "dist": "node node_modules/electron-builder/out/cli/cli.js --mac --universal --publish never",
+    "dist:arm64": "node node_modules/electron-builder/out/cli/cli.js --mac --arm64 --publish never",
+    "dist:x64": "node node_modules/electron-builder/out/cli/cli.js --mac --x64 --publish never",
+    "dist:win": "node node_modules/electron-builder/out/cli/cli.js --win --x64 --publish never",
+    "test": "node test/smoke.js"
+  },
+  "author": "shienliang",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^39.8.10",
+    "electron-builder": "^26.15.7"
+  },
+  "build": {
+    "appId": "com.shienliang.deepseek-harness",
+    "productName": "DeepSeek Harness",
+    "asar": true,
+    "mac": {
+      "category": "public.app-category.developer-tools",
+      "icon": "build/icon.icns",
+      "target": [
+        "dir",
+        "zip"
+      ],
+      "identity": "-",
+      "hardenedRuntime": false,
+      "gatekeeperAssess": false
+    },
+    "win": {
+      "icon": "build/icon.ico",
+      "target": [
+        "nsis"
+      ],
+      "artifactName": "DeepSeek Harness-Setup-${version}-${arch}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "precheck.html",
+      "package.json"
+    ]
+  }
+}
