@@ -21,6 +21,9 @@
     "appId": "com.shienliang.deepseek-harness",
     "productName": "DeepSeek Harness",
     "asar": true,
+    "electronDownload": {
+      "mirror": "https://npmmirror.com/mirrors/electron/"
+    },
     "mac": {
       "category": "public.app-category.developer-tools",
       "icon": "build/icon.icns",
