@@ -51,6 +51,9 @@ let precheckWin = null;
 let installing = false;
 let activePort = BASE_PORT;
 let logStream = null;
+let quitting = false;
+let dshRestarts = 0;
+let dshRestartResetAt = 0;
 
 // ============ 日志（落盘到系统日志目录 install.log） ============
 
@@ -141,6 +144,18 @@ function nodeMeetsRequirement(v) {
   return p.major > 22;
 }
 
+// 按 semver 数值比较，避免字符串排序把 v9.x 排在 v22.x 前面
+function compareVersion(a, b) {
+  const pa = parseVersion(a);
+  const pb = parseVersion(b);
+  if (!pa && !pb) return 0;
+  if (!pa) return 1;  // 无法解析的放最后
+  if (!pb) return -1;
+  if (pa.major !== pb.major) return pa.major - pb.major;
+  if (pa.minor !== pb.minor) return pa.minor - pb.minor;
+  return pa.patch - pb.patch;
+}
+
 // ============ 环境检测 ============
 
 // 通过 shell 解析 PATH（含 nvm），拿到真正的 dsh 路径，覆盖 volta/fnm/asdf 等
@@ -167,7 +182,7 @@ function findDshCandidates() {
   if (fs.existsSync(nvmDir)) {
     try {
       const versions = fs.readdirSync(nvmDir);
-      versions.sort().reverse();
+      versions.sort(compareVersion).reverse();
       for (const v of versions) {
         const p = path.join(nvmDir, v, 'bin', 'dsh');
         if (fs.existsSync(p)) candidates.push(p);
@@ -424,20 +439,57 @@ function installDsh({ onLog, onDone }) {
 // ============ 启动流程 ============
 
 async function ensureDshRunning(dshPath) {
-  // 始终启动自己的 dsh 实例，而不是盲目复用 3080 上可能存在的陌生进程
-  const port = await findFreePort(BASE_PORT);
-  activePort = port;
+  // 始终启动自己的 dsh 实例；带启动重试 + 运行中崩溃自动重启
+  await launchDsh(dshPath, 3);
+}
+
+function spawnDsh(dshPath, port) {
   const envPath = isWin
     ? path.dirname(dshPath) + ';' + process.env.PATH
     : path.dirname(dshPath) + ':' + process.env.PATH;
   const env = { ...process.env, PATH: envPath };
   const args = ['web', '--host', HOST, '--port', String(port)];
   // Windows 上 dsh 是 .cmd shim，需要 shell 解析
-  dshProc = spawn(isWin ? 'dsh' : dshPath, args, { env, stdio: 'ignore', shell: isWin });
-  const ok = await waitForPort(HOST, port);
-  if (!ok) {
-    throw new Error('dsh web 启动超时');
+  return spawn(isWin ? 'dsh' : dshPath, args, { env, stdio: 'ignore', shell: isWin });
+}
+
+async function launchDsh(dshPath, attempts, fixedPort) {
+  let lastErr = null;
+  for (let i = 1; i <= attempts; i++) {
+    // 崩溃重启时复用原端口（fixedPort），窗口无需刷新；首次启动则探测空闲端口
+    const port = fixedPort || (await findFreePort(BASE_PORT));
+    activePort = port;
+    if (dshProc) {
+      try { dshProc.kill(); } catch (e) { /* ignore */ }
+      dshProc = null;
+    }
+    dshProc = spawnDsh(dshPath, port);
+    const ok = await waitForPort(HOST, port);
+    if (ok) {
+      dshProc.on('exit', (code, signal) => onDshExit(code, signal, dshPath));
+      return;
+    }
+    lastErr = new Error('dsh web 启动超时（第 ' + i + '/' + attempts + ' 次尝试）');
+    try { dshProc.kill(); } catch (e) { /* ignore */ }
+    dshProc = null;
   }
+  throw lastErr;
+}
+
+function onDshExit(code, signal, dshPath) {
+  dshProc = null;
+  if (quitting) return;
+  logLine('[dsh] web 进程退出（code=' + code + ' signal=' + signal + '），准备自动重启');
+  // 连续崩溃保护：60 秒内最多自动重启 3 次，避免死循环
+  const now = Date.now();
+  if (now > dshRestartResetAt) { dshRestarts = 0; dshRestartResetAt = now + 60000; }
+  if (++dshRestarts > 3) {
+    logLine('[dsh] 连续崩溃过多，已停止自动重启，请手动重启应用');
+    return;
+  }
+  launchDsh(dshPath, 1, activePort).catch((err) => {
+    logLine('[dsh] 自动重启失败: ' + err.message);
+  });
 }
 
 function isHttpUrl(u) {
@@ -610,6 +662,7 @@ app.on('window-all-closed', () => {
 });
 
 app.on('will-quit', () => {
+  quitting = true;
   killInstallProc();
   if (dshProc) {
     try { dshProc.kill(); } catch (e) { /* ignore */ }

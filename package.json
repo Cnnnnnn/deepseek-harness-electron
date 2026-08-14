@@ -1,6 +1,6 @@
 {
   "name": "deepseek-harness",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "DeepSeek Harness (dsh) Electron 封装",
   "main": "main.js",
   "scripts": {
@@ -30,14 +30,15 @@
       ],
       "identity": "-",
       "hardenedRuntime": false,
-      "gatekeeperAssess": false
+      "gatekeeperAssess": false,
+      "artifactName": "DeepSeek.Harness-universal-mac.${ext}"
     },
     "win": {
       "icon": "build/icon.ico",
       "target": [
         "nsis"
       ],
-      "artifactName": "DeepSeek Harness-Setup-${version}-${arch}.${ext}"
+      "artifactName": "DeepSeek.Harness-Setup-${arch}.${ext}"
     },
     "nsis": {
       "oneClick": false,
