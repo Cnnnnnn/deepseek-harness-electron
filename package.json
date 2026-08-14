@@ -5,10 +5,10 @@
   "main": "main.js",
   "scripts": {
     "start": "node node_modules/electron/cli.js .",
-    "dist": "node node_modules/electron-builder/out/cli/cli.js --mac --universal --publish never",
-    "dist:arm64": "node node_modules/electron-builder/out/cli/cli.js --mac --arm64 --publish never",
-    "dist:x64": "node node_modules/electron-builder/out/cli/cli.js --mac --x64 --publish never",
-    "dist:win": "node node_modules/electron-builder/out/cli/cli.js --win --x64 --publish never",
+    "dist": "node scripts/build.js --mac --universal --publish never",
+    "dist:arm64": "node scripts/build.js --mac --arm64 --publish never",
+    "dist:x64": "node scripts/build.js --mac --x64 --publish never",
+    "dist:win": "node scripts/build.js --win --x64 --publish never",
     "test": "node test/smoke.js"
   },
   "author": "shienliang",
@@ -21,9 +21,6 @@
     "appId": "com.shienliang.deepseek-harness",
     "productName": "DeepSeek Harness",
     "asar": true,
-    "electronDownload": {
-      "mirror": "https://npmmirror.com/mirrors/electron/"
-    },
     "mac": {
       "category": "public.app-category.developer-tools",
       "icon": "build/icon.icns",
