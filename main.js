@@ -10,7 +10,7 @@ const BASE_PORT = 3080;
 const NPM_REGISTRY = 'https://registry.npmjs.org';
 const NPM_MIRROR = 'https://registry.npmmirror.com';
 // 固定已验证的 dsh 版本，避免上游发破坏性新版本
-const DSH_PKG = '@deepseek-ai/dsh@0.1.0-rc.6';
+const DSH_PKG = '@deepseek-ai/dsh@0.1.0-rc.7';
 const INSTALL_TIMEOUT_MS = 15 * 60 * 1000; // 15 分钟
 const isWin = process.platform === 'win32';
 

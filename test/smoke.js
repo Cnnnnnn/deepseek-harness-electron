@@ -32,7 +32,7 @@ const preload = read('preload.js');
 
 const markers = [
   ['npm 缓存重定向', mainJs.includes('npm_config_cache')],
-  ['dsh 版本固定', mainJs.includes('@deepseek-ai/dsh@0.1.0-rc.6')],
+  ['dsh 版本固定', mainJs.includes('@deepseek-ai/dsh@0.1.0-rc.7')],
   ['npmmirror 镜像 fallback', mainJs.includes('registry.npmmirror.com')],
   ['单实例锁', mainJs.includes('requestSingleInstanceLock')],
   ['安装进程跟踪/kill', mainJs.includes('installProc') && mainJs.includes("kill('SIGKILL')")],
